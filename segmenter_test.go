@@ -52,6 +52,14 @@ func TestSegment(t *testing.T) {
 	expect(t, "24", segments[3].end)
 }
 
+// func TestLoadSignleDict(t *testing.T) {
+// 	var seg Segmenter
+// 	seg.LoadSignleDict("经济管理", 100000000, "n")
+// 	seg.LoadDictionary("data/dictionary.txt")
+// 	segments := seg.Segment([]byte("经济管理是问题"))
+// 	expect(t, "经济管理/n 是/v 问题/n ", SegmentsToString(segments, false))
+// }
+
 func TestLargeDictionary(t *testing.T) {
 	prodSeg.LoadDictionary("data/dictionary.txt")
 	expect(t, "中国/ns 人口/n ", SegmentsToString(prodSeg.Segment(

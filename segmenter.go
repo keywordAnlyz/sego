@@ -3,6 +3,7 @@ package sego
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -33,6 +34,32 @@ func (seg *Segmenter) Dictionary() *Dictionary {
 	return seg.dict
 }
 
+func (seg *Segmenter) RemoteDict(text string) error {
+	return seg.dict.remoteToken(text)
+}
+
+//加载单个分词
+func (seg *Segmenter) LoadSignleDict(text string, frequency int, pos string) error {
+	text = strings.Trim(text, "")
+	if text == "" {
+		return errors.New("分词文本不能为空")
+	}
+
+	if frequency < minTokenFrequency {
+		return fmt.Errorf("频率%d小于最小阀值%d", frequency, minTokenFrequency)
+	}
+
+	if seg.dict == nil {
+		seg.dict = NewDictionary()
+	}
+
+	// 将分词添加到字典中
+	words := splitTextToWords([]byte(text))
+	token := Token{text: words, frequency: frequency, pos: pos}
+	seg.dict.addToken(token)
+	return nil
+}
+
 // 从文件中载入词典
 //
 // 可以载入多个词典文件，文件名用","分隔，排在前面的词典优先载入分词，比如
@@ -49,6 +76,7 @@ func (seg *Segmenter) LoadDictionary(files string) {
 		defer dictFile.Close()
 		if err != nil {
 			log.Fatalf("无法载入字典文件 \"%s\" \n", file)
+			continue
 		}
 
 		reader := bufio.NewReader(dictFile)

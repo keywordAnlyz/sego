@@ -45,6 +45,27 @@ func (dict *Dictionary) addToken(token Token) {
 	}
 }
 
+func (dict *Dictionary) remoteToken(tokenText string) error {
+
+	for i, token := range dict.tokens {
+		if token.Text() != tokenText {
+			continue
+		}
+		bytes := textSliceToBytes(token.text)
+		err := dict.trie.Delete(bytes)
+		if err != nil {
+			return err
+		}
+		dict.tokens = append(dict.tokens[:i], dict.tokens[i:]...)
+		dict.totalFrequency -= int64(token.frequency)
+		// if dict.maxTokenLength==len(token.text)    {
+		// 	 //TODO :update max Token Length.
+		// }
+		return nil
+	}
+	return nil
+}
+
 // 在词典中查找和字元组words可以前缀匹配的所有分词
 // 返回值为找到的分词数
 func (dict *Dictionary) lookupTokens(words []Text, tokens []*Token) (numOfTokens int) {
